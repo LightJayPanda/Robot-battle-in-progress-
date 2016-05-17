@@ -1,10 +1,121 @@
-// robot1 attack robot2
-// Robot.prototype.attack = ...
-// Robot.prototype.recieve_damage = ...
-// 
-// Реализовать можно
-// robot1.attack(robot2) ->
-//     robot2.receieve_damage(robot1.weapon.damage)
+function random(min, max) {		//	вспомогательная функция для последующего использования
+        return Math.round(Math.random() * (max - min) + min);
+    }
+
+// описание типов оружия. типы в массиве для простоты расширения проекта в дальнейшем
+Weapon.types = ['singleWeapon', 'areaWeapon'];
+
+function Weapon() {
+    var name = name;
+    //var type = random(0, 1) == 0 ? 'singleWeapon' : 'areaWeapon';
+    var type = Weapon.types[random(0, Weapon.types.length - 1)];
+    var damage = random(5, 20);
+
+    this.attack = function (targetRobot, agressor) {
+        switch (type) {
+            case 'singleWeapon':
+                console.log( agressor.name + ' has dealed ' + damage + ' damage points to ' + targetRobot.name );
+                targetRobot.receiveDamage(damage);
+                break;
+            case 'areaWeapon':
+                console.log( agressor.name + ' hits the battleground with area strike with the following damage: ' + damage);
+                agressor.battle.damageAll(damage, agressor);
+                break;
+            default:
+                console.warn('Unhandled weapon type');
+        }
+    }
+}
+
+function Robot(name) {
+    var MIN_HP = 20;
+    var MAX_HP = 50;
+    var weapon = new Weapon();
+    var hp = random(MIN_HP, MAX_HP);
+    var receivedDamage = 0;
+
+    this.name = name;
+    this.alive = true;
+
+    this.attack = function () {
+        weapon.attack(this.battle.selectRandomActiveRobot(this), this);
+    };
+
+    this.receiveDamage = function (damageAmount) {
+        receivedDamage += damageAmount;
+        if (receivedDamage >= hp) {
+            this.battle.killRobot(this);
+        }
+    };
+}
+
+function Battle () {
+        var activeRobots = [];
+        var deadRobots = [];
+        var minAmountOfRobotsToStartBattle = random(2, Battle.maxAmountOfRobots);
+        console.log('Creating battle: need ' + minAmountOfRobotsToStartBattle + ' to start the battle');
+
+        var self = this;
+
+        this.addRobot = function (robot) {
+            var amountOfRobots = activeRobots.length;
+            if (amountOfRobots >= Battle.maxAmountOfRobots) {
+                console.warn('Please wait till battle is over');
+                return false;
+            }
+            activeRobots.push(robot);
+            robot.battle = this;
+            //if we have enough robots, start battle
+            if (++amountOfRobots === minAmountOfRobotsToStartBattle) {
+                this.started = true;
+                setRandomDamage();
+            }
+            return true;
+        };
+
+        this.killRobot = function (robot) {
+            console.log(robot.name + ' died');
+            robot.alive = false;
+            deadRobots.push(robot);
+            activeRobots.splice(activeRobots.indexOf(robot), 1);
+            //if we have a winner (or everybody died)
+            if (activeRobots.length <= 1) {
+                this.completed = true;
+                console.log('Battle completed, winner: ', activeRobots[0]);
+            }
+        };
+
+        //if there are few robots
+        this.selectRandomActiveRobot = function (exclude) {
+            let robotsToSelectFrom = activeRobots;
+            if (exclude) { //select from robots excluding passed one
+                robotsToSelectFrom = [];
+                activeRobots.forEach(function (robot) {
+                    if (robot !== exclude) {
+                        robotsToSelectFrom.push(robot);
+                    }
+                });
+            }
+            return robotsToSelectFrom[random(0, robotsToSelectFrom.length - 1)];
+        };
+
+        //if there are many robots
+        this.selectRandomActiveRobot2 = function (exclude) {
+            let selected = activeRobots[random(0, activeRobots.length - 1)];
+            if (selected === exclude) {
+                return self.selectRandomActiveRobot2(exclude);
+            }
+            return selected;
+        };
+
+        this.damageAll = function (damage, agressor) {
+            activeRobots.forEach(function (robot) {
+                if (robot !== agressor) {
+                    robot.receiveDamage(damage);
+                }
+            });
+        };
+
 
 function battleGround() {
 
