@@ -5,9 +5,9 @@ function random(min, max) {		//	вспомогательная функция д
 // описание типов оружия. типы в массиве для простоты расширения проекта в дальнейшем
 Weapon.types = ['singleWeapon', 'areaWeapon'];
 
+//	описание оружия
 function Weapon() {
     var name = name;
-    //var type = random(0, 1) == 0 ? 'singleWeapon' : 'areaWeapon';
     var type = Weapon.types[random(0, Weapon.types.length - 1)];
     var damage = random(5, 20);
 
@@ -19,7 +19,7 @@ function Weapon() {
                 break;
             case 'areaWeapon':
                 console.log( agressor.name + ' hits the battleground with area strike with the following damage: ' + damage);
-                agressor.battle.damageAll(damage, agressor);
+                agressor.battleGround.damageAll(damage, agressor);
                 break;
             default:
                 console.warn('Unhandled weapon type');
@@ -27,6 +27,7 @@ function Weapon() {
     }
 }
 
+// описание робота
 function Robot(name) {
     var MIN_HP = 20;
     var MAX_HP = 50;
@@ -38,34 +39,35 @@ function Robot(name) {
     this.alive = true;
 
     this.attack = function () {
-        weapon.attack(this.battle.selectRandomActiveRobot(this), this);
+        weapon.attack(this.battleGround.selectRandomActiveRobot(this), this);
     };
 
     this.receiveDamage = function (damageAmount) {
         receivedDamage += damageAmount;
         if (receivedDamage >= hp) {
-            this.battle.killRobot(this);
+            this.battleGround.killRobot(this);
         }
     };
 }
 
-function Battle () {
+//	описание поля битвы
+function BattleGround () {
         var activeRobots = [];
-        var deadRobots = [];
-        var minAmountOfRobotsToStartBattle = random(2, Battle.maxAmountOfRobots);
-        console.log('Creating battle: need ' + minAmountOfRobotsToStartBattle + ' to start the battle');
+        var graveYard = [];
+        var minAmountOfRobotsToStartBattle = random(2, BattleGround.maxAmountOfRobots);
+        console.log('Creating battle... This battle needs ' + minAmountOfRobotsToStartBattle + ' robots to start');
 
         var self = this;
 
+        //	добавление робота на поле; битва начнется при достижении необходимого числа роботов (см. строку 57)
         this.addRobot = function (robot) {
             var amountOfRobots = activeRobots.length;
-            if (amountOfRobots >= Battle.maxAmountOfRobots) {
+            if (amountOfRobots >= BattleGround.maxAmountOfRobots) {
                 console.warn('Please wait till battle is over');
                 return false;
             }
             activeRobots.push(robot);
-            robot.battle = this;
-            //if we have enough robots, start battle
+            robot.battleGround = this;
             if (++amountOfRobots === minAmountOfRobotsToStartBattle) {
                 this.started = true;
                 setRandomDamage();
@@ -73,22 +75,23 @@ function Battle () {
             return true;
         };
 
+        //	уничтожение робота и проверка количества оставшихся на поле роботов
         this.killRobot = function (robot) {
-            console.log(robot.name + ' died');
+            console.log(robot.name + ' was destroyed.');
             robot.alive = false;
-            deadRobots.push(robot);
+            graveYard.push(robot);
             activeRobots.splice(activeRobots.indexOf(robot), 1);
             //if we have a winner (or everybody died)
             if (activeRobots.length <= 1) {
                 this.completed = true;
-                console.log('Battle completed, winner: ', activeRobots[0]);
+                console.log('Battle completed, the winner is: ', activeRobots[0]);
             }
         };
 
-        //if there are few robots
+        //	выбор случайного робота (для малого количества)
         this.selectRandomActiveRobot = function (exclude) {
-            let robotsToSelectFrom = activeRobots;
-            if (exclude) { //select from robots excluding passed one
+            var robotsToSelectFrom = activeRobots;
+            if (exclude) {
                 robotsToSelectFrom = [];
                 activeRobots.forEach(function (robot) {
                     if (robot !== exclude) {
@@ -99,15 +102,16 @@ function Battle () {
             return robotsToSelectFrom[random(0, robotsToSelectFrom.length - 1)];
         };
 
-        //if there are many robots
-        this.selectRandomActiveRobot2 = function (exclude) {
-            let selected = activeRobots[random(0, activeRobots.length - 1)];
-            if (selected === exclude) {
-                return self.selectRandomActiveRobot2(exclude);
-            }
-            return selected;
-        };
+        //	выбор случайного робота (для большого количества)
+        //	this.selectRandomActiveRobot2 = function (exclude) {
+        //		var selected = activeRobots[random(0, activeRobots.length - 1)];
+        //		if (selected === exclude) {
+        //			return self.selectRandomActiveRobot2(exclude);
+        //		}
+        //		return selected;
+        //	};
 
+        //	получение урона от оружия массового поражения
         this.damageAll = function (damage, agressor) {
             activeRobots.forEach(function (robot) {
                 if (robot !== agressor) {
@@ -116,125 +120,18 @@ function Battle () {
             });
         };
 
-
-function battleGround() {
-
-var robots = [0];
-var graveYard = [0];
-var winner = 'noWinnerYet';
-var MIN_ROBOT_AMOUNT = 2;
-var MAX_ROBOT_AMOUNT = 20;
-
-function random(min, max) {
-	return Math.floor(Math.random() * (max - min) + min);
-}
-
-function attack() {
-	var targetRobot = robots.random();
-	if ((this.weapon.type == singleWeapon && (targetRobot != this)) {
-		targetRobot.receiveDamage()
-	} else if (this.weapon.type == areaWeapon) {
-		for (i = 0; i <= robots.length; i++) {
-			if (targetRobot != this) {
-				robot.receiveDamage;
-			}
-		}
-	};
-
-	//	receiveDamage here?
-	// ---------------------------------------------------------------------------------------
-	// 	Robot.receiveDamage(points) {	// should I move this section to attack() ?
-	//     targetRobot.hp -= points;
-	    
-	//     if (points < targetRobot.hp) {
-	//       targetRobot.hp =- points;
-	//       console.log( robot + ' hits ' + targetRobot + '. ' targetRobot ' loses '+ points + 'hp'); 
-	//     }
-	//     if (damage >= targetRobot.hp) {
-	//       targetRobot.hp = 0;
-	//       targetRobot.alive = false;
-	//       graveYard.join(targetRobot);
-	//       console.log( targetRobot + ' was destroyed');
-	//     }
-	//   	Robot.prototype.dealDamage(points) {
-	//   		if (this.weapon.type = singleWeapon) {
-	//   			var targetRobot = robots.random(i);
-	//   			targetRobot.receiveDamage();
-	//   			}		
-	//   		}
-	//   	}
-	// ---------------------------------------------------------------------------------------
-
-}
-
-function Weapon(type) {
-	this.name = name;
-	this.type = type;
-	this.damage = random(5, 20);
-}
-
-function createWeapon() {
-	var type = random(0, 1) == 0 ? 'singleWeapon' : 'areaWeapon';
-	return new Weapon(type);
-}
-
-function Robot(name) {
-	this.name = name;
-	var hp = random(20, 50);
-	this.alive = true;
-	this.weapon = createWeapon();
-// ---------------------------------------------------------------------------------------
-	Robot.receiveDamage(points) {	// should I move this section to attack() ?
-    targetRobot.hp -= points;
-    
-    if (points < targetRobot.hp) {
-      targetRobot.hp =- points;
-      console.log( robot + ' hits ' + targetRobot + '. ' targetRobot ' loses '+ points + 'hp'); 
+        function setRandomDamage () {
+            self.selectRandomActiveRobot().attack();
+            //if the battle is still active, make further damage
+            if (!self.completed) {
+                setTimeout(setRandomDamage, 1000);
+            }
+        }
     }
 
-    if (damage >= targetRobot.hp) {
-      targetRobot.hp = 0;
-      targetRobot.alive = false;
-      graveYard.join(targetRobot);
-      console.log( targetRobot + ' was destroyed');
+    BattleGround.maxAmountOfRobots = 20;
+
+    var battle = new BattleGround();
+    for (var i = 0; !battle.started; i++) {
+        battle.addRobot(new Robot('robot' + i));
     }
-
-  	Robot.prototype.dealDamage(points) {
-  		if (this.weapon.type = singleWeapon) {
-  			var targetRobot = robots.random(i);
-  			targetRobot.receiveDamage();
-  		}
-  			
-  		}
-  	}
-// ---------------------------------------------------------------------------------------
- 	this.setDamage = function(robot, points) {
-    if (damage <= 0) {
-    	throw new Error('Damage must be positive');
-    };
-
-    if (damage > 20) {
-    	throw new Error('Damage cannot exceed 20');
-    };
-	damage = points;
-  };
-
-}
-
-// -----------------------------
-
-function createBattle(robots) {
-	var battleGround = [];
-	
-	function addRobot() {
-		for ( var i = MIN_ROBOT_AMOUNT; i <= MAX_ROBOT_AMOUNT; i++)
-		var robot = new Robot('Robot ' + i);
-			battleGround.join(robot);
-		return battleGround
-	};
-	return battleGround; // ?
-}
-
-console.log("В ходе битвы убиты роботы: " + graveYard + "; победил робот " + winner);
-
-}
