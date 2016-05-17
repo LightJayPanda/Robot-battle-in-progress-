@@ -1,4 +1,5 @@
-function random(min, max) {		//	вспомогательная функция для последующего использования
+//	вспомогательная функция для последующего использования
+function random(min, max) {
         return Math.round(Math.random() * (max - min) + min);
     }
 
