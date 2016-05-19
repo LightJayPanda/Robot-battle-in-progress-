@@ -1,3 +1,5 @@
+// see line 125
+
 //	вспомогательная функция для последующего использования
 function random(min, max) {
         return Math.round(Math.random() * (max - min) + min);
@@ -39,8 +41,14 @@ function Robot(name) {
     this.name = name;
     this.alive = true;
 
+    //  pick random attacking robot
+    //  this.attack = function () {
+    //      weapon.attack(this.battleGround.selectRandomActiveRobot(this), this);
+    //  };
+
+    //  pick attacking robots sequently
     this.attack = function () {
-        weapon.attack(this.battleGround.selectRandomActiveRobot(this), this);
+        weapon.attack(this.battleGround.selectActiveRobot(this), this);
     };
 
     this.receiveDamage = function (damageAmount) {
@@ -52,10 +60,10 @@ function Robot(name) {
 }
 
 //	описание поля битвы
-function BattleGround () {
+function startBattle () {
         var activeRobots = [];
         var graveYard = [];
-        var minAmountOfRobotsToStartBattle = random(2, BattleGround.maxAmountOfRobots);
+        var minAmountOfRobotsToStartBattle = random(2, startBattle.maxAmountOfRobots);
         console.log('Creating battle... This battle needs ' + minAmountOfRobotsToStartBattle + ' robots to start');
 
         var self = this;
@@ -63,7 +71,7 @@ function BattleGround () {
         //	добавление робота на поле; битва начнется при достижении необходимого числа роботов (см. строку 57)
         this.addRobot = function (robot) {
             var amountOfRobots = activeRobots.length;
-            if (amountOfRobots >= BattleGround.maxAmountOfRobots) {
+            if (amountOfRobots >= startBattle.maxAmountOfRobots) {
                 console.warn('Please wait till battle is over');
                 return false;
             }
@@ -112,6 +120,13 @@ function BattleGround () {
         //		return selected;
         //	};
 
+        this.selectActiveRobot = function (robot) {
+            activeRobots.forEach(function (robot) {
+                // мысль закончилась здесь!
+            }
+
+        }
+
         //	получение урона от оружия массового поражения
         this.damageAll = function (damage, agressor) {
             activeRobots.forEach(function (robot) {
@@ -130,9 +145,9 @@ function BattleGround () {
         }
     }
 
-    BattleGround.maxAmountOfRobots = 20;
+    startBattle.maxAmountOfRobots = 20;
 
-    var battle = new BattleGround();
+    var battle = new startBattle();
     for (var i = 0; !battle.started; i++) {
         battle.addRobot(new Robot('robot' + i));
     }
