@@ -1,5 +1,3 @@
-// see line 125
-
 //	вспомогательная функция для последующего использования
 function random(min, max) {
         return Math.round(Math.random() * (max - min) + min);
@@ -98,18 +96,18 @@ function startBattle () {
         };
 
         //	выбор случайного робота (для малого количества)
-        this.selectRandomActiveRobot = function (exclude) {
-            var robotsToSelectFrom = activeRobots;
-            if (exclude) {
-                robotsToSelectFrom = [];
-                activeRobots.forEach(function (robot) {
-                    if (robot !== exclude) {
-                        robotsToSelectFrom.push(robot);
-                    }
-                });
-            }
-            return robotsToSelectFrom[random(0, robotsToSelectFrom.length - 1)];
-        };
+        // this.selectRandomActiveRobot = function (exclude) {
+        //     var robotsToSelectFrom = activeRobots;
+        //     if (exclude) {
+        //         robotsToSelectFrom = [];
+        //         activeRobots.forEach(function (robot) {
+        //             if (robot !== exclude) {
+        //                 robotsToSelectFrom.push(robot);
+        //             }
+        //         });
+        //     }
+        //     return robotsToSelectFrom[random(0, robotsToSelectFrom.length - 1)];
+        // };
 
         //	выбор случайного робота (для большого количества)
         //	this.selectRandomActiveRobot2 = function (exclude) {
@@ -120,11 +118,12 @@ function startBattle () {
         //		return selected;
         //	};
 
-        this.selectActiveRobot = function (robot) {
-            activeRobots.forEach(function (robot) {
-                // мысль закончилась здесь!
+        this.selectActiveRobot = function () {
+            while (activeRobots.length >= 2) {
+                for (var i = 0; i <= activeRobots.length; i++) {
+                    return robot;
+                }
             }
-
         }
 
         //	получение урона от оружия массового поражения
